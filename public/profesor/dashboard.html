@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Catalog Profesor</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    table, th, td { border: 1px solid #ddd; border-collapse: collapse; }
+    th, td { padding: 8px; }
+  </style>
+</head>
+<body>
+  <h2>Administrează note</h2>
+  <button onclick="logout()">Logout</button>
+
+  <h3>Notele tuturor elevilor:</h3>
+  <table id="notele"></table>
+  
+  <h3>Adaugă notă:</h3>
+  <form id="addNote">
+    <input id="studentId" placeholder="ID Elev" required>
+    <input id="subject" placeholder="Materie" required>
+    <input id="grade" placeholder="Notă" type="number" min="1" max="10" required>
+    <button>Adaugă</button>
+  </form>
+  <div id="msg"></div>
+
+  <h3>Medii elevi:</h3>
+  <table id="medii"></table>
+
+  <script>
+    function logout() { localStorage.removeItem('token'); location.href = 'login.html'; }
+
+    async function incarcaNote() {
+      const token = localStorage.getItem('token');
+      if (!token) return logout();
+      let r = await fetch('/api/profesor/grades', { headers: { Authorization: "Bearer " + token }});
+      let data = await r.json();
+      let html = "<tr><th>ID Elev</th><th>Nume elev</th><th>Materie</th><th>Notă</th><th>Șterge</th></tr>";
+      data.forEach(nota => html += `<tr>
+        <td>${nota.studentId}</td>
+        <td>${nota.studentName}</td>
+        <td>${nota.subject}</td>
+        <td>${nota.grade}</td>
+        <td><button onclick="stergeNota(${nota.id})">🗑️</button></td>
+      </tr>`);
+      document.getElementById('notele').innerHTML = html;
+    }
+
+    async function stergeNota(id) {
+      const token = localStorage.getItem('token');
+      if (!token) return logout();
+      await fetch('/api/profesor/grades/' + id, {
+        method: 'DELETE', headers: { Authorization: "Bearer " + token }
+      });
+      incarcaNote(); incarcaMedii();
+    }
+
+    document.getElementById('addNote').onsubmit = async function(e) {
+  e.preventDefault();
+  const token = localStorage.getItem('token');
+  const studentId = studentId.value, subject = subject.value, grade = grade.value;
+  let r = await fetch('/api/profesor/grades', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: "Bearer " + token },
+    body: JSON.stringify({ studentId, subject, grade })
+  });
+  let data = await r.json();
+  if (r.ok) { msg.innerText = "Notă adăugată!"; incarcaNote(); incarcaMedii(); }
+  else msg.innerText = data.message;
+};
+
+    
+
+    async function incarcaMedii() {
+      const token = localStorage.getItem('token');
+      if (!token) return logout();
+      let r = await fetch('/api/profesor/medii', { headers: { Authorization: "Bearer " + token }});
+      let data = await r.json();
+      let html = "<tr><th>ID Elev</th><th>Nume elev</th><th>Media</th></tr>";
+      data.forEach(elev => html += `<tr>
+        <td>${elev.id}</td>
+        <td>${elev.name}</td>
+        <td>${elev.media}</td>
+      </tr>`);
+      document.getElementById('medii').innerHTML = html;
+    }
+
+    incarcaNote(); incarcaMedii();
+  </script>
+</body>
+</html>

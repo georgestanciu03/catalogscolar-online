@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Catalog Elev</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <h2>Notele mele</h2>
+  <button onclick="logout()">Logout</button>
+  <table id="notele"></table>
+  <script>
+    function logout() { localStorage.removeItem('token'); location.href = 'login.html'; }
+    async function incarcaNote() {
+      const token = localStorage.getItem('token');
+      if (!token) return logout();
+      let r = await fetch('/api/elev/grades', { headers: { Authorization: "Bearer " + token }});
+      let data = await r.json();
+      let html = "<tr><th>Materie</th><th>Notă</th></tr>";
+      data.forEach(nota => html += `<tr><td>${nota.subject}</td><td>${nota.grade}</td></tr>`);
+      document.getElementById('notele').innerHTML = html;
+    }
+    incarcaNote();
+  </script>
+</body>
+</html>

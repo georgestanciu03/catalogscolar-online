@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login Elev</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <h2>Autentificare Elev</h2>
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="Email" required><br>
+    <input type="password" id="password" placeholder="Parolă" required><br>
+    <button>Login</button>
+    <div id="err"></div>
+  </form>
+  <script>
+    loginForm.onsubmit = async e => {
+      e.preventDefault();
+      let r = await fetch('/api/login', {
+        method: 'POST', headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ email: email.value, password: password.value })
+      });
+      let data = await r.json();
+      if(data.token && data.role === "elev") {
+        localStorage.setItem("token", data.token);
+        location.href = "dashboard.html";
+      } else {
+        err.innerText = data.message || "Eroare!";
+      }
+    }
+  </script>
+</body>
+</html>
