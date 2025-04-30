@@ -1,0 +1,10 @@
+PROJECT_NAME           = "Catalog Scolar"
+OUTPUT_DIRECTORY       = ./docs
+INPUT                  = .
+FILE_PATTERNS          = *.js
+RECURSIVE              = YES
+GENERATE_LATEX         = NO
+GENERATE_HTML          = YES
+EXTRACT_ALL            = YES
+QUIET                  = YES
+WARN_IF_UNDOCUMENTED   = NO
